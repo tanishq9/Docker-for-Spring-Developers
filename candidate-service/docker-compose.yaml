@@ -1,0 +1,41 @@
+version: "3.0"
+services:
+  db:
+    image: mongo
+    ports:
+      - "${HOST_PORT:-27017}:27017"
+    volumes:
+      - "./src/test/resources/data:/docker-entrypoint-initdb.d"
+
+  express:
+    image: "mongo-express"
+    restart: "always"
+    depends_on:
+      - db
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_SERVER: db # MongoDB container name.
+
+  job-service-mock:
+    image: mockserver/mockserver
+    ports:
+      - "${HOST_PORT:-1080}:1080"
+    volumes:
+      - "./src/test/resources/data/init.json:/init.json" # relative path or else it is considered absolute path
+    environment:
+      MOCKSERVER_INITIALIZATION_JSON_PATH: /init.json
+
+  candidate-service:
+    build: . # We can execute - (docker compose build) first to build docker image and then we can do (compose up) or just this directly - (docker compose up --build)
+    image: candidate-service
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+    environment:
+      spring.data.mongodb.uri: "mongodb://candidate_user:candidate_password@db:27017/candidatedb" # localhost won't work, we will have to use 'db' which is name of mongodb container
+      job.service.url: http://job-service-mock:1080/job/
+
+# https://www.cyberciti.biz/faq/how-to-install-curl-on-alpine-linux/
+# docker run -p 27017:27017 -v /Users/tsaluja/Documents/candidate-service/src/test/resources/data:/docker-entrypoint-initdb.d --network=candidate-service_default --name=db mongo

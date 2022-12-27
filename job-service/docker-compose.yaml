@@ -1,0 +1,26 @@
+version: "3.0"
+services:
+  db:
+    image: mongo
+    ports:
+      - "${HOST_PORT:-27017}:27017"
+    volumes:
+      - "./src/test/resources/data:/docker-entrypoint-initdb.d"
+  express:
+    image: "mongo-express"
+    restart: "always"
+    depends_on:
+      - db
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_SERVER: db # MongoDB container name.
+  job-service:
+    build: . # We can execute - (docker compose build) first to build docker image and then we can do (compose up) or just this directly - (docker compose up --build)
+    image: job-service
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+    environment:
+      spring.data.mongodb.uri: "mongodb://job_user:job_password@db:27017/jobdb" # localhost won't work, we will have to use 'db' which is name of mongodb container

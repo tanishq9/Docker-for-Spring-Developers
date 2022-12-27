@@ -1,0 +1,39 @@
+[
+  {
+    "httpRequest": {
+      "path": "/job/search",
+      "queryStringParameters": {
+        "skills": [
+          "java"
+        ]
+      }
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "body": [
+        {
+          "id": 1,
+          "description": "Senior Dev Java",
+          "company": "abc",
+          "skills": [
+            "java",
+            "spring",
+            "docker"
+          ],
+          "salary": 100000,
+          "isRemote": false
+        },
+        {
+          "id": 2,
+          "description": "Junior Dev Java",
+          "company": "abc",
+          "skills": [
+            "java"
+          ],
+          "salary": 50000,
+          "isRemote": false
+        }
+      ]
+    }
+  }
+]
